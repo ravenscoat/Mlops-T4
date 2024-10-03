@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"   # Frontend will be served at port 8080
+    volumes:
+      - ./frontend:/usr/share/nginx/html  # Mount frontend files
+    container_name: frontend
+    develop:
+      watch:
+        - action: sync
+          path: ./frontend
+          target: /usr/share/nginx/html
+          ignore:
+            - node_modules/
+
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"  # Backend will run on port 5000
+    volumes:
+      - ./backend:/app  # Mount backend files for live reload
+    container_name: backend
+    develop:
+      watch:
+        - action: sync
+          path: ./backend
+          target: /app
+          ignore:
+            - node_modules/
+
+  database:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: mydb
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"  # Database will run on port 3306
+    container_name: database
